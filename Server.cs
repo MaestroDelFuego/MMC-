@@ -24,7 +24,7 @@ public static class Server
                 Logger.Log("[Server] Client connected: " + client.Client.RemoteEndPoint);
                 new Thread(() => ClientHandler.Handle(client)).Start();
             }
-            Thread.Sleep(10);
+            Thread.Sleep(10); //hello discord
         }
     }
 }
