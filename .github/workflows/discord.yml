@@ -14,7 +14,6 @@ jobs:
       - name: Run build script
         run: |
           echo "Building project..."
-          # simulate build result
           echo "Build succeeded!"
           
       - name: Send Discord Notification
@@ -28,21 +27,24 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_WORKFLOW: ${{ github.workflow }}
         run: |
-          curl -H "Content-Type: application/json" -X POST -d "$(jq -n \
-            --arg title "GitHub Actions Build #${GITHUB_RUN_NUMBER}" \
-            --arg description "Repository: ${GITHUB_REPOSITORY}\nBranch: ${GITHUB_REF}\nCommit: ${GITHUB_SHA}\nTriggered by: ${GITHUB_ACTOR}" \
-            --arg url "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
-            '{
-              "embeds": [
-                {
-                  "title": $title,
-                  "description": $description,
-                  "url": $url,
-                  "color": 3066993,
-                  "footer": {
-                    "text": "GitHub Actions Workflow: " + env.GITHUB_WORKFLOW
-                  },
-                  "timestamp": (now | todate)
-                }
-              ]
-            }')" $DISCORD_WEBHOOK_URL
+          curl -H "Content-Type: application/json" -X POST -d "$(
+            jq -n \
+              --arg title "GitHub Actions Build #${GITHUB_RUN_NUMBER}" \
+              --arg description "Repository: ${GITHUB_REPOSITORY}\nBranch: ${GITHUB_REF}\nCommit: ${GITHUB_SHA}\nTriggered by: ${GITHUB_ACTOR}" \
+              --arg url "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+              --arg workflow "${GITHUB_WORKFLOW}" \
+              '{
+                "embeds": [
+                  {
+                    "title": $title,
+                    "description": $description,
+                    "url": $url,
+                    "color": 3066993,
+                    "footer": {
+                      "text": ("GitHub Actions Workflow: " + $workflow)
+                    },
+                    "timestamp": (now | todate)
+                  }
+                ]
+              }'
+          )" "$DISCORD_WEBHOOK_URL"
